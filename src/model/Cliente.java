@@ -5,25 +5,28 @@ import java.util.regex.Pattern;
 
 public class Cliente {
 	
+	private String dataCadastro;
 	private String nome;
 	private String telefone;
 	private String email;
 	private String sexo;
 	private int id;
 	
-	public Cliente(String nome, String telefone, String email, String sexo) {
+	public Cliente(String nome, String telefone, String email, String sexo, String dataCadastro) {
 		setNome(nome);
 		setTelefone(telefone);
 		setEmail(email);
 		this.sexo = sexo;
+		this.dataCadastro = dataCadastro;
 	}
 	
-	public Cliente(int id, String nome, String telefone, String email, String sexo) {
+	public Cliente(int id, String nome, String telefone, String email, String sexo, String dataCadastro) {
 		setNome(nome);
 		setTelefone(telefone);
 		setEmail(email);
 		this.sexo = sexo;
 		this.id = id;
+		this.dataCadastro = dataCadastro;
 	}
 	
 	public int getId() {
@@ -112,7 +115,9 @@ public class Cliente {
 	public void setSexo(String sexo) {
 		this.sexo = sexo;
 	}
-	
+	public String getDataCadastro() {
+		return dataCadastro;
+	}
 	
 
 }

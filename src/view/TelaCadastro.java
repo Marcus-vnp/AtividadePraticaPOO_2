@@ -4,6 +4,9 @@ import java.awt.EventQueue;
 import java.awt.Image;
 import java.util.ArrayList;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -177,6 +180,9 @@ public class TelaCadastro extends JFrame {
 				String email = textEmail.getText().toString();
 				String telefone = textTelefone.getText().toString();
 				String sexo = rdbtnMasculino.isSelected() ? "Masculino" : "Feminino";
+				LocalDate hoje = LocalDate.now();
+				DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+				String dataCadastro = hoje.format(formato);
 				if (nome.isBlank() || email.isBlank() || telefone.isBlank() 
 						|| sexo.isBlank()) {
 					JOptionPane.showMessageDialog(TelaCadastro.this, 
@@ -185,7 +191,7 @@ public class TelaCadastro extends JFrame {
 				}else {
 					
 					try {
-						Cliente cliente = new Cliente(nome, telefone, email, sexo);
+						Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
 						dao.inserir(cliente);
 						modelo.addCliente(cliente);	
 						
@@ -335,8 +341,17 @@ public class TelaCadastro extends JFrame {
 		});
 		mnNewMenuEditar.add(mntmAtualizar);
 		
-		JMenu mnNewMenu_2 = new JMenu("Preferências");
-		menuBar.add(mnNewMenu_2);
+		JMenu mnFerramentas = new JMenu("Ferramentas");
+		menuBar.add(mnFerramentas);
+		
+		JMenuItem mntmValidar = new JMenuItem("Validar dados");
+		mnFerramentas.add(mntmValidar);
+		
+		JMenuItem mntmExportar = new JMenuItem("Exportar relatorio");
+		mnFerramentas.add(mntmExportar);
+		
+		JMenuItem mntmImportar = new JMenuItem("Importar CSV validado");
+		mnFerramentas.add(mntmImportar);
 		
 		JMenu mnNewMenu_3 = new JMenu("Sobre");
 		menuBar.add(mnNewMenu_3);
@@ -356,12 +371,13 @@ public class TelaCadastro extends JFrame {
 			
 			while((linha = bufferedReader.readLine()) != null) {
 				String campos [] = linha.split(",");
-				if (campos.length == 4) {
+				if (campos.length == 5) {
 					String nome = campos[0];
 					String telefone = campos[1];
 					String email = campos[2];
 					String sexo = campos[3];
-					Cliente cliente = new Cliente(nome, telefone, email, sexo);
+					String dataCadastro = campos[4];
+					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
 					modelo.addCliente(cliente);
 				} else {
 					contador++;
@@ -396,8 +412,9 @@ public class TelaCadastro extends JFrame {
 				String telefone = (String) modelo.getValueAt(i, 1);
 				String email = (String) modelo.getValueAt(i, 2);
 				String sexo = (String) modelo.getValueAt(i, 3);
+				String dataCadastro = (String) modelo.getValueAt(i, 4);
 				bufferedWriter.write(nome+","+telefone+","+
-				","+email+","+sexo);
+				","+email+","+sexo+","+dataCadastro);
 				bufferedWriter.newLine();
 			}
 		}catch(IOException e) {

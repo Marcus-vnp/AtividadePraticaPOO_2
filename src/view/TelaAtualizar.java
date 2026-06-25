@@ -18,6 +18,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.awt.event.ActionEvent;
 
 public class TelaAtualizar extends JDialog {
@@ -124,6 +126,9 @@ public class TelaAtualizar extends JDialog {
         String telefone = textFieldTelefone.getText().toString();
         String email = textFieldEmail.getText().toString();
         String sexo = rdbtnMasculino.isSelected() ? "Masculino" : "Feminino";
+        LocalDate hoje = LocalDate.now();
+		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		String dataCadastro = hoje.format(formato);
 
         if (nome.isBlank() || telefone.isBlank() || email.isBlank()) {
             JOptionPane.showMessageDialog(
@@ -138,7 +143,8 @@ public class TelaAtualizar extends JDialog {
             nome,
             telefone,
             email,
-            sexo
+            sexo,
+            dataCadastro
         );
 
         dispose();
