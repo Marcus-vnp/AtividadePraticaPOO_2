@@ -12,7 +12,7 @@ public class ClienteDAO {
 	
 	public void inserir(Cliente cliente) {
 		String sql = "INSERT INTO clientes "
-				+ "(nome, telefone, email, sexo) VALUES (?,?,?,?)";	
+				+ "(nome, telefone, email, sexo, dataCadastro) VALUES (?,?,?,?,?)";	
 		
 		try {
 			Connection conexao = Conexao.conectar();
@@ -21,6 +21,7 @@ public class ClienteDAO {
 			stmt.setString(2, cliente.getTelefone());
 			stmt.setString(3, cliente.getEmail());
 			stmt.setString(4, cliente.getSexo());
+			stmt.setString(5, cliente.getDataCadastro());
 			stmt.execute();
 			
 			stmt.close();
@@ -59,8 +60,9 @@ public class ClienteDAO {
 				String telefone = resultSet.getString("telefone");
 				String email = resultSet.getString("email");
 				String sexo = resultSet.getString("sexo");
+				String dataCadastro = resultSet.getString("dataCadastro");
 				int id = resultSet.getInt("id");
-				Cliente cliente = new Cliente(id, nome, telefone, email, sexo);
+				Cliente cliente = new Cliente(id, nome, telefone, email, sexo, dataCadastro);
 				clientes.add(cliente);
 			}
 		}catch(SQLException e) {
@@ -71,7 +73,7 @@ public class ClienteDAO {
 	
 	public void atualizar(Cliente cliente) {
 		String sql = "UPDATE clientes SET nome=?, "
-				+ "telefone=?, email=?, sexo=? WHERE id=?";
+				+ "telefone=?, email=?, sexo=?, dataCadastro=? WHERE id=?";
 		try {
 			Connection conexao = Conexao.conectar();
 			PreparedStatement stmt = conexao.prepareStatement(sql);
@@ -79,7 +81,8 @@ public class ClienteDAO {
 			stmt.setString(2, cliente.getTelefone());
 			stmt.setString(3, cliente.getEmail());
 			stmt.setString(4, cliente.getSexo());
-			stmt.setInt(5, cliente.getId());
+			stmt.setString(5, cliente.getDataCadastro());
+			stmt.setInt(6, cliente.getId());
 			stmt.executeUpdate();
 			stmt.close();
 			conexao.close();

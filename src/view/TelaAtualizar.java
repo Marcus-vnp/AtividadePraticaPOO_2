@@ -124,7 +124,8 @@ public class TelaAtualizar extends JDialog {
         String telefone = textFieldTelefone.getText().toString();
         String email = textFieldEmail.getText().toString();
         String sexo = rdbtnMasculino.isSelected() ? "Masculino" : "Feminino";
-
+        String dataCadastro = "21/01/2006";
+        
         if (nome.isBlank() || telefone.isBlank() || email.isBlank()) {
             JOptionPane.showMessageDialog(
                 this,
@@ -138,7 +139,8 @@ public class TelaAtualizar extends JDialog {
             nome,
             telefone,
             email,
-            sexo
+            sexo,
+            dataCadastro
         );
 
         dispose();

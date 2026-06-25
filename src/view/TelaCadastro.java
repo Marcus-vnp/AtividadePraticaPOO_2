@@ -24,7 +24,6 @@ import javax.swing.table.DefaultTableModel;
 import dao.ClienteDAO;
 import model.Cliente;
 import model.ClienteTableModel;
-import util.DadosMockados;
 
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -172,6 +171,7 @@ public class TelaCadastro extends JFrame {
 				String email = textEmail.getText().toString();
 				String telefone = textTelefone.getText().toString();
 				String sexo = rdbtnMasculino.isSelected() ? "Masculino" : "Feminino";
+				String dataCadastro = "21/01/2006";
 				if (nome.isBlank() || email.isBlank() || telefone.isBlank() 
 						|| sexo.isBlank()) {
 					JOptionPane.showMessageDialog(TelaCadastro.this, 
@@ -179,7 +179,7 @@ public class TelaCadastro extends JFrame {
 							JOptionPane.WARNING_MESSAGE);
 				}else {
 					try {
-						Cliente cliente = new Cliente(nome, telefone, email, sexo);
+						Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
 						modelo.addCliente(cliente);					
 						dao.inserir(cliente);
 						JOptionPane.showMessageDialog(TelaCadastro.this, 
@@ -338,7 +338,8 @@ public class TelaCadastro extends JFrame {
 					String telefone = campos[1];
 					String email = campos[2];
 					String sexo = campos[3];
-					Cliente cliente = new Cliente(nome, telefone, email, sexo);
+					String dataCadastro = "21/01/2006";
+					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
 					modelo.addCliente(cliente);
 				}
 			}
