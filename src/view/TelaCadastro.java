@@ -178,12 +178,18 @@ public class TelaCadastro extends JFrame {
 							"Preencha todos os campos", "Alerta", 
 							JOptionPane.WARNING_MESSAGE);
 				}else {
-					Cliente cliente = new Cliente(nome, telefone, email, sexo);
-					modelo.addCliente(cliente);					
-					dao.inserir(cliente);
-					JOptionPane.showMessageDialog(TelaCadastro.this, 
-							"Cliente adicionado com sucesso!", "Sucesso!", 
-							JOptionPane.INFORMATION_MESSAGE);
+					try {
+						Cliente cliente = new Cliente(nome, telefone, email, sexo);
+						modelo.addCliente(cliente);					
+						dao.inserir(cliente);
+						JOptionPane.showMessageDialog(TelaCadastro.this, 
+								"Cliente adicionado com sucesso!", "Sucesso!", 
+								JOptionPane.INFORMATION_MESSAGE);
+					}catch (IllegalArgumentException er) {
+						JOptionPane.showMessageDialog(TelaCadastro.this, 
+								er.getMessage(), "Alerta", 
+								JOptionPane.WARNING_MESSAGE);
+					}
 				}
 				textNome.setText("");
 				textTelefone.setText("");
