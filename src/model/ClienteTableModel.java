@@ -7,7 +7,7 @@ import javax.swing.table.AbstractTableModel;
 public class ClienteTableModel extends AbstractTableModel{
 
 	private static final long serialVersionUID = 1L;
-	private static final String [] columnNames = {"Nome", "Telefone", "Email", "Sexo", "DataCadastro"};
+	private static final String [] columnNames = {"Nome", "Telefone", "Email", "Sexo", "dataCadastro"};
 	private ArrayList<Cliente> clientes;
 	
 	public ClienteTableModel(ArrayList<Cliente> clientes) {

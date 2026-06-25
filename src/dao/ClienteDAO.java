@@ -68,6 +68,7 @@ public class ClienteDAO {
 		}catch(SQLException e) {
 			e.printStackTrace();
 		}
+		
 		return clientes;
 	}
 	

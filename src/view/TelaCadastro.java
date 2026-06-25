@@ -32,6 +32,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -171,7 +173,11 @@ public class TelaCadastro extends JFrame {
 				String email = textEmail.getText().toString();
 				String telefone = textTelefone.getText().toString();
 				String sexo = rdbtnMasculino.isSelected() ? "Masculino" : "Feminino";
-				String dataCadastro = "21/01/2006";
+				LocalDate hoje = LocalDate.now();
+				DateTimeFormatter formato =
+				DateTimeFormatter.ofPattern("dd/MM/yyyy");
+				String dataCadastro = hoje.format(formato);
+				
 				if (nome.isBlank() || email.isBlank() || telefone.isBlank() 
 						|| sexo.isBlank()) {
 					JOptionPane.showMessageDialog(TelaCadastro.this, 
@@ -338,7 +344,7 @@ public class TelaCadastro extends JFrame {
 					String telefone = campos[1];
 					String email = campos[2];
 					String sexo = campos[3];
-					String dataCadastro = "21/01/2006";
+					String dataCadastro = campos[4];
 					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
 					modelo.addCliente(cliente);
 				}
