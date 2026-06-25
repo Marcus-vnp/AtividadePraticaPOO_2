@@ -10,47 +10,37 @@ import model.Cliente;
 
 public class ClienteDAO {
 	
-	public void inserir(Cliente cliente) {
-		String sql = "INSERT INTO clientes "
-				+ "(nome, telefone, email, sexo) VALUES (?,?,?,?)";	
+	public void inserir(Cliente cliente) throws SQLException {
+		String sql = "INSERT INTO clientes (nome, telefone, email, sexo) VALUES (?,?,?,?)";	
 		
-		try {
-			Connection conexao = Conexao.conectar();
-			PreparedStatement stmt = conexao.prepareStatement(sql);
-			stmt.setString(1, cliente.getNome());
-			stmt.setString(2, cliente.getTelefone());
-			stmt.setString(3, cliente.getEmail());
-			stmt.setString(4, cliente.getSexo());
-			stmt.execute();
+		Connection conexao = Conexao.conectar();
+		PreparedStatement stmt = conexao.prepareStatement(sql);
+		stmt.setString(1, cliente.getNome());
+		stmt.setString(2, cliente.getTelefone());
+		stmt.setString(3, cliente.getEmail());
+		stmt.setString(4, cliente.getSexo());
+		stmt.execute();
 			
-			stmt.close();
-			conexao.close();
-			
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
+		stmt.close();
+		conexao.close();
 	}
 	
-	public void excluir(int id) {
+	public void excluir(int id) throws SQLException {
 		String sql = "DELETE FROM clientes WHERE id=?";
-		try {
-			Connection conexao = Conexao.conectar();
-			PreparedStatement stmt = conexao.prepareStatement(sql);
-			stmt.setInt(1, id);
-			stmt.execute();
+		
+		Connection conexao = Conexao.conectar();
+		PreparedStatement stmt = conexao.prepareStatement(sql);
+		stmt.setInt(1, id);
+		stmt.execute();
 			
-			stmt.close();
-			conexao.close();
-			
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
+		stmt.close();
+		conexao.close();
 	}
 	
-	public ArrayList<Cliente> listar(){
+	public ArrayList<Cliente> listar() throws SQLException {
 		String sql = "SELECT * FROM clientes";
 		ArrayList<Cliente> clientes = new ArrayList<Cliente>();
-		try {
+
 			Connection conexao = Conexao.conectar();
 			PreparedStatement stmt = conexao.prepareStatement(sql);
 			ResultSet resultSet = stmt.executeQuery();
@@ -63,13 +53,11 @@ public class ClienteDAO {
 				Cliente cliente = new Cliente(id, nome, telefone, email, sexo);
 				clientes.add(cliente);
 			}
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
+		
 		return clientes;
 	}
 	
-	public void atualizar(Cliente cliente) {
+	public void atualizar(Cliente cliente) throws SQLException {
 		String sql = "UPDATE clientes SET nome=?, "
 				+ "telefone=?, email=?, sexo=? WHERE id=?";
 		try {

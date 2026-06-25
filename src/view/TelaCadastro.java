@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -79,8 +80,12 @@ public class TelaCadastro extends JFrame {
 	public TelaCadastro() {
 		dao = new ClienteDAO();
 		clientes = new ArrayList<Cliente>();
-		//DadosMockados.carregar(clientes);
-		modelo = new ClienteTableModel(dao.listar());
+		try {
+			//DadosMockados.carregar(clientes);
+			modelo = new ClienteTableModel(dao.listar());
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível carregar os clientes.", "Erro", JOptionPane.ERROR_MESSAGE);
+		}
 		
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -178,18 +183,17 @@ public class TelaCadastro extends JFrame {
 							"Preencha todos os campos", "Alerta", 
 							JOptionPane.WARNING_MESSAGE);
 				}else {
+					Cliente cliente = new Cliente(nome, telefone, email, sexo);
+					
 					try {
-						Cliente cliente = new Cliente(nome, telefone, email, sexo);
-						modelo.addCliente(cliente);					
 						dao.inserir(cliente);
-						JOptionPane.showMessageDialog(TelaCadastro.this, 
-								"Cliente adicionado com sucesso!", "Sucesso!", 
-								JOptionPane.INFORMATION_MESSAGE);
-					}catch (IllegalArgumentException er) {
-						JOptionPane.showMessageDialog(TelaCadastro.this, 
-								er.getMessage(), "Alerta", 
-								JOptionPane.WARNING_MESSAGE);
+						modelo.addCliente(cliente);	
+					} catch (Exception e1) {
+						JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível inserir esse cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+						return;
 					}
+					
+					JOptionPane.showMessageDialog(TelaCadastro.this, "Cliente adicionado com sucesso!", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
 				}
 				textNome.setText("");
 				textTelefone.setText("");
@@ -208,8 +212,16 @@ public class TelaCadastro extends JFrame {
 				int indice = table.getSelectedRow();
 				if (indice >= 0) {
 					Cliente cliente = modelo.getCliente(indice);
-					dao.excluir(cliente.getId());
-					modelo.removerCliente(indice);
+					
+					try {
+						dao.excluir(cliente.getId());
+						modelo.removerCliente(indice);
+					} catch (Exception e1) {
+						JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível excluir esse cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				} else {
+					JOptionPane.showMessageDialog(TelaCadastro.this, "Selecione o cliente a ser excluído.", "Erro", JOptionPane.ERROR_MESSAGE);
 				}
 				
 			}
@@ -258,9 +270,9 @@ public class TelaCadastro extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser jFileChooser = new JFileChooser();
-				if (jFileChooser.showOpenDialog(TelaCadastro.this) 
-						== JFileChooser.APPROVE_OPTION) {
+				if (jFileChooser.showOpenDialog(TelaCadastro.this) == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
+					
 					carregarDados(file, modelo);
 						
 				}
@@ -309,8 +321,12 @@ public class TelaCadastro extends JFrame {
 					TelaAtualizar dialogo = new TelaAtualizar(TelaCadastro.this, cliente);
 					dialogo.setVisible(true);
 					if (dialogo.getClienteEditado() != null) {
-						dao.atualizar(dialogo.getClienteEditado());
-						modelo.atualizarTabela(dao.listar());
+						try {
+							dao.atualizar(dialogo.getClienteEditado());
+							modelo.atualizarTabela(dao.listar());
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível atualizar esse cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+						}
 					}
 				}
 			}
@@ -325,12 +341,17 @@ public class TelaCadastro extends JFrame {
 	}
 	
 	private void carregarDados(File file, ClienteTableModel modelo) {
+		int contador = 0;
 		try {
 			fileReader = new FileReader(file);
 			bufferedReader = new BufferedReader(fileReader);
 			modelo.limparDados();
-			bufferedReader.readLine();
-			String linha = "";
+			String linha = bufferedReader.readLine();
+			
+			if(linha == null) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "O arquivo está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
+			}
+			
 			while((linha = bufferedReader.readLine()) != null) {
 				String campos [] = linha.split(",");
 				if (campos.length == 4) {
@@ -340,19 +361,26 @@ public class TelaCadastro extends JFrame {
 					String sexo = campos[3];
 					Cliente cliente = new Cliente(nome, telefone, email, sexo);
 					modelo.addCliente(cliente);
+				} else {
+					contador++;
 				}
 			}
 		}catch(IOException e) {
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Não encontrei esse arquivo", "Aviso", JOptionPane.WARNING_MESSAGE);
 			e.printStackTrace();
 		}finally {
 			try {
 				bufferedReader.close();
 				fileReader.close();				
 			}catch(IOException e) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível fechar o arquivo.", "Erro", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}		
 		
+		if(contador > 0) {
+			JOptionPane.showMessageDialog(TelaCadastro.this, contador + " cliente(s) com quantidade incorreta de campos", "Aviso", JOptionPane.WARNING_MESSAGE);			
+		}
 	}
 	
 	private void salvarDados(File file, ClienteTableModel modelo) {
@@ -371,12 +399,13 @@ public class TelaCadastro extends JFrame {
 				bufferedWriter.newLine();
 			}
 		}catch(IOException e) {
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível salvar o arquivo.", "Erro", JOptionPane.ERROR_MESSAGE);
 		}finally {
 			try {				
 				bufferedWriter.close();
 				fileWriter.close();
 			}catch(IOException e) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível fechar o arquivo.", "Erro", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			}
 		}
