@@ -373,8 +373,9 @@ public class TelaCadastro extends JFrame {
 				String telefone = (String) modelo.getValueAt(i, 1);
 				String email = (String) modelo.getValueAt(i, 2);
 				String sexo = (String) modelo.getValueAt(i, 3);
+				String dataCadastro = (String) modelo.getValueAt(i, 4);
 				bufferedWriter.write(nome+","+telefone+","+
-				","+email+","+sexo);
+				","+email+","+sexo+","+dataCadastro);
 				bufferedWriter.newLine();
 			}
 		}catch(IOException e) {
