@@ -361,6 +361,15 @@ public class TelaCadastro extends JFrame {
 		mnFerramentas.add(mntmExportar);
 		
 		JMenuItem mntmImportar = new JMenuItem("Importar CSV validado");
+		mntmImportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser jFileChooser = new JFileChooser();
+				if (jFileChooser.showSaveDialog(TelaCadastro.this) == JFileChooser.APPROVE_OPTION) {
+					File file = jFileChooser.getSelectedFile();
+					importarCSVValidado(file);
+				}
+			}
+		});
 		mnFerramentas.add(mntmImportar);
 		
 		JMenu mnNewMenu_3 = new JMenu("Sobre");
@@ -519,25 +528,42 @@ public class TelaCadastro extends JFrame {
 			fileReader = new FileReader(arquivo);
 			bufferedReader = new BufferedReader(fileReader);
 			String linha = bufferedReader.readLine();
+			int aceitos = 0;
+			int rejeitados = 0;
 			
-			if(linha == null) {
+			if(arquivo.length() == 0 || linha == null) {
 				JOptionPane.showMessageDialog(TelaCadastro.this, "O arquivo selecionado está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
 			}
 			
 			while((linha = bufferedReader.readLine()) != null) {
 				String campos [] = linha.split(",");
-				if (campos.length == 5) {
+				if (campos.length == 4) {
 					String nome = campos[0];
 					String telefone = campos[1];
 					String email = campos[2];
 					String sexo = campos[3];
-					String dataCadastro = campos[4];
+					LocalDate hoje = LocalDate.now();
+					DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+					String dataCadastro = hoje.format(formato);
+					
 					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
+					dao.inserir(cliente);
 					modelo.addCliente(cliente);
+					
+					aceitos++;
+				} else {
+					rejeitados++;
 				}
 			}
+			
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Registros importados: " + aceitos + "\nRegistros rejeitados: " + rejeitados, "Importação concluída", JOptionPane.INFORMATION_MESSAGE);
 		}catch(IOException e) {
 			JOptionPane.showMessageDialog(TelaCadastro.this, "Não encontrei esse arquivo", "Aviso", JOptionPane.WARNING_MESSAGE);
+			e.printStackTrace();
+		}catch(IllegalArgumentException e) {
+			e.printStackTrace();
+		}catch (SQLException e){
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Erro no Banco de Dados ao inserir cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}finally {
 			try {
