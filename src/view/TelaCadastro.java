@@ -51,7 +51,7 @@ public class TelaCadastro extends JFrame {
 	private JTextField textNome;
 	private JTextField textEmail;
 	private JTextField textTelefone;
-	private JTextField textBuscar;
+	private JTextField textBuscarNome;
 	private JTable table;
 	private ClienteTableModel modelo;
 	private ArrayList<Cliente> clientes;
@@ -60,6 +60,9 @@ public class TelaCadastro extends JFrame {
 	private FileReader fileReader;
 	private BufferedReader bufferedReader;
 	private ClienteDAO dao;
+	private JTextField textBuscarDataCadastro;
+	private JTextField textPeriodoInicio;
+	private JTextField textPeriodoFinal;
 
 	/**
 	 * Launch the application.
@@ -92,7 +95,7 @@ public class TelaCadastro extends JFrame {
 		
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 737, 658);
+		setBounds(100, 100, 737, 836);
 		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -166,7 +169,7 @@ public class TelaCadastro extends JFrame {
 		buttonGroup.add(rdbtnMasculino);
 		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(23, 299, 690, 77);
+		panel_1.setBounds(23, 299, 690, 147);
 		contentPane.add(panel_1);
 		panel_1.setLayout(null);
 		
@@ -240,23 +243,61 @@ public class TelaCadastro extends JFrame {
 		JButton btnBuscar = new JButton("Buscar");
 		btnBuscar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String buscarNome = textBuscar.getText().toString();
+				String buscarNome = textBuscarNome.getText().toString();
+				String buscarDataCadastro = textBuscarDataCadastro.getText().toString();
+				String buscarDataInicio = textPeriodoInicio.getText().toString();
+				String buscarDataFinal = textPeriodoFinal.getText().toString();
 				if (!buscarNome.isBlank()) {
-					int indice = modelo.buscarCliente(buscarNome);
-					table.setRowSelectionInterval(indice, indice);
+					ArrayList<Cliente> clientes = dao.buscarPorNome(buscarNome);
+
+					modelo.atualizarTabela(clientes);
+				}else if(!buscarDataCadastro.isBlank()) {
+					try {
+					ArrayList<Cliente> clientes = dao.buscarPorDataCadastro(buscarDataCadastro);
+					modelo.atualizarTabela(clientes);
+					}catch(IllegalArgumentException er){
+						JOptionPane.showMessageDialog(TelaCadastro.this, er.getMessage(), "Alerta", JOptionPane.WARNING_MESSAGE);
+					}
+				}else if(!buscarDataInicio.isBlank() || !buscarDataFinal.isBlank()){
+					try {
+						ArrayList<Cliente> clientes = dao.buscarPorPeriodo(buscarDataInicio, buscarDataFinal);
+						modelo.atualizarTabela(clientes);
+					}catch(IllegalArgumentException er){
+						JOptionPane.showMessageDialog(TelaCadastro.this, er.getMessage(), "Alerta", JOptionPane.WARNING_MESSAGE);
+					}
+
+				}else {
+					try {
+						modelo.atualizarTabela(dao.listar());
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
 		btnBuscar.setBounds(278, 25, 105, 27);
 		panel_1.add(btnBuscar);
 		
-		textBuscar = new JTextField();
-		textBuscar.setBounds(409, 25, 269, 27);
-		panel_1.add(textBuscar);
-		textBuscar.setColumns(10);
+		textBuscarNome = new JTextField();
+		textBuscarNome.setBounds(409, 38, 269, 27);
+		panel_1.add(textBuscarNome);
+		textBuscarNome.setColumns(10);
+		
+		JLabel lblNewLabel_5 = new JLabel("Nome");
+		lblNewLabel_5.setBounds(408, 20, 60, 17);
+		panel_1.add(lblNewLabel_5);
+		
+		textBuscarDataCadastro = new JTextField();
+		textBuscarDataCadastro.setColumns(10);
+		textBuscarDataCadastro.setBounds(409, 108, 269, 27);
+		panel_1.add(textBuscarDataCadastro);
+		
+		JLabel lblNewLabel_6 = new JLabel("dataCadastro [dd/mm/yyyy]");
+		lblNewLabel_6.setBounds(408, 89, 198, 17);
+		panel_1.add(lblNewLabel_6);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(23, 395, 690, 196);
+		scrollPane.setBounds(23, 580, 690, 196);
 		contentPane.add(scrollPane);
 		
 		table = new JTable();
@@ -374,6 +415,34 @@ public class TelaCadastro extends JFrame {
 		
 		JMenu mnNewMenu_3 = new JMenu("Sobre");
 		menuBar.add(mnNewMenu_3);
+		
+		JPanel panel_3 = new JPanel();
+		panel_3.setBounds(23, 453, 221, 115);
+		contentPane.add(panel_3);
+		panel_3.setLayout(null);
+		
+		textPeriodoInicio = new JTextField();
+		textPeriodoInicio.setBounds(91, 36, 114, 21);
+		panel_3.add(textPeriodoInicio);
+		textPeriodoInicio.setColumns(10);
+		
+		JLabel lblNewLabel_7 = new JLabel("Data Final");
+		lblNewLabel_7.setBounds(12, 71, 61, 17);
+		panel_3.add(lblNewLabel_7);
+		
+		textPeriodoFinal = new JTextField();
+		textPeriodoFinal.setBounds(91, 69, 114, 21);
+		panel_3.add(textPeriodoFinal);
+		textPeriodoFinal.setColumns(10);
+		
+		JLabel lblNewLabel_7_1 = new JLabel("Data Inicio");
+		lblNewLabel_7_1.setBounds(12, 38, 65, 17);
+		panel_3.add(lblNewLabel_7_1);
+		
+		JLabel lblPesquisaPorPeriodo = new JLabel("Pesquisa Por Periodo");
+		lblPesquisaPorPeriodo.setFont(new Font("Dialog", Font.BOLD, 15));
+		lblPesquisaPorPeriodo.setBounds(32, 7, 157, 17);
+		panel_3.add(lblPesquisaPorPeriodo);
 	}
 	
 	private void carregarDados(File file, ClienteTableModel modelo) {
