@@ -29,6 +29,13 @@ public class Cliente {
 		this.dataCadastro = dataCadastro;
 	}
 	
+	public Cliente(String nome, String telefone, String email, String sexo) {
+		setNome(nome);
+		setTelefone(telefone);
+		setEmail(email);
+		this.sexo = sexo;
+	}
+	
 	public int getId() {
 		return this.id;
 	}

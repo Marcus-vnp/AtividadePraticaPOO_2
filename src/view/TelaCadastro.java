@@ -295,8 +295,7 @@ public class TelaCadastro extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser jFileChooser = new JFileChooser();
-				if (jFileChooser.showSaveDialog(TelaCadastro.this) 
-						== JFileChooser.APPROVE_OPTION) {
+				if (jFileChooser.showSaveDialog(TelaCadastro.this) == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
 					salvarDados(file, modelo);
 				}
@@ -348,9 +347,29 @@ public class TelaCadastro extends JFrame {
 		mnFerramentas.add(mntmValidar);
 		
 		JMenuItem mntmExportar = new JMenuItem("Exportar relatorio");
+		mntmExportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser jFileChooser = new JFileChooser();
+				
+				if (jFileChooser.showSaveDialog(TelaCadastro.this) == JFileChooser.APPROVE_OPTION) {
+					File file = jFileChooser.getSelectedFile();
+					
+					exportarRelatorio(file, modelo);
+				}
+			}
+		});
 		mnFerramentas.add(mntmExportar);
 		
 		JMenuItem mntmImportar = new JMenuItem("Importar CSV validado");
+		mntmImportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser jFileChooser = new JFileChooser();
+				if (jFileChooser.showSaveDialog(TelaCadastro.this) == JFileChooser.APPROVE_OPTION) {
+					File file = jFileChooser.getSelectedFile();
+					importarCSVValidado(file);
+				}
+			}
+		});
 		mnFerramentas.add(mntmImportar);
 		
 		JMenu mnNewMenu_3 = new JMenu("Sobre");
@@ -429,5 +448,131 @@ public class TelaCadastro extends JFrame {
 			}
 		}
 		
+	}
+	
+	private boolean validarCliente(Cliente cliente) {
+		return false;
+	}
+	
+	private void exportarRelatorio(File arquivo, ClienteTableModel modelo) {
+		try {
+			
+			fileWriter = new FileWriter(arquivo);
+			bufferedWriter = new BufferedWriter(fileWriter);
+			bufferedWriter.write("RELATÓRIO DE CLIENTES");
+			bufferedWriter.newLine();
+			bufferedWriter.newLine();
+			
+			LocalDate hoje = LocalDate.now();
+			DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			String dataHoje = hoje.format(formato);
+			
+			bufferedWriter.write("Data de geração: " + dataHoje);
+			bufferedWriter.newLine();
+			bufferedWriter.newLine();
+			
+			bufferedWriter.write("Total de clientes: " + dao.listar().size());
+			bufferedWriter.newLine();
+			bufferedWriter.write("Masculino: " + 0);
+			bufferedWriter.newLine();
+			bufferedWriter.write("Feminino: " + 0);
+			bufferedWriter.newLine();
+			bufferedWriter.newLine();
+			
+			for(int i = 0; i < modelo.getRowCount(); i++) {
+				String nome = (String) modelo.getValueAt(i, 0);
+				String telefone = (String) modelo.getValueAt(i, 1);
+				String email = (String) modelo.getValueAt(i, 2);
+				String sexo = (String) modelo.getValueAt(i, 3);
+				String dataCadastro = (String) modelo.getValueAt(i, 4);
+				
+				bufferedWriter.write("----------------------------------");
+				bufferedWriter.newLine();
+				bufferedWriter.write("Nome: " + nome);
+				bufferedWriter.newLine();
+				bufferedWriter.write("Telefone: " + telefone);
+				bufferedWriter.newLine();
+				bufferedWriter.write("Email: " + email);
+				bufferedWriter.newLine();
+				bufferedWriter.write("Sexo: " + sexo);
+				bufferedWriter.newLine();
+				bufferedWriter.write("Data de Cadastro: " + dataCadastro);
+				bufferedWriter.newLine();
+				
+			}
+			
+			bufferedWriter.write("----------------------------------");
+			bufferedWriter.newLine();
+			
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Relatório exportado com sucesso.", "Concluído", JOptionPane.INFORMATION_MESSAGE);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Erro ao exportar relatório.", "Erro", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Erro no Banco de Dados ao exportar relatório.", "Erro", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		} finally {
+			try {				
+				bufferedWriter.close();
+				fileWriter.close();
+			}catch(IOException e) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível fechar o arquivo.", "Erro", JOptionPane.ERROR_MESSAGE);
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	private void importarCSVValidado(File arquivo) {
+		try {
+			fileReader = new FileReader(arquivo);
+			bufferedReader = new BufferedReader(fileReader);
+			String linha = bufferedReader.readLine();
+			int aceitos = 0;
+			int rejeitados = 0;
+			
+			if(arquivo.length() == 0 || linha == null) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "O arquivo selecionado está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
+			}
+			
+			while((linha = bufferedReader.readLine()) != null) {
+				String campos [] = linha.split(",");
+				if (campos.length == 4) {
+					String nome = campos[0];
+					String telefone = campos[1];
+					String email = campos[2];
+					String sexo = campos[3];
+					LocalDate hoje = LocalDate.now();
+					DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+					String dataCadastro = hoje.format(formato);
+					
+					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
+					dao.inserir(cliente);
+					modelo.addCliente(cliente);
+					
+					aceitos++;
+				} else {
+					rejeitados++;
+				}
+			}
+			
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Registros importados: " + aceitos + "\nRegistros rejeitados: " + rejeitados, "Importação concluída", JOptionPane.INFORMATION_MESSAGE);
+		}catch(IOException e) {
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Não encontrei esse arquivo", "Aviso", JOptionPane.WARNING_MESSAGE);
+			e.printStackTrace();
+		}catch(IllegalArgumentException e) {
+			e.printStackTrace();
+		}catch (SQLException e){
+			JOptionPane.showMessageDialog(TelaCadastro.this, "Erro no Banco de Dados ao inserir cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}finally {
+			try {
+				bufferedReader.close();
+				fileReader.close();				
+			}catch(IOException e) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível fechar o arquivo.", "Erro", JOptionPane.ERROR_MESSAGE);
+				e.printStackTrace();
+			}
+		}	
 	}
 }
