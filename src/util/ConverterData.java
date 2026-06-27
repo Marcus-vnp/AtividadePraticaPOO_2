@@ -3,6 +3,8 @@ package util;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class ConverterData {
 	
@@ -18,13 +20,9 @@ public abstract class ConverterData {
 	}
 	
 	public static boolean verificar(String data){
-		if (data.length() != 10) return false;
-	    
-		String[] partes = data.split("/");
+		Matcher matcher = Pattern.compile("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$").matcher(data);		
 		
-		if (partes.length != 3) return false;
-		
-		if (partes[0].length() != 2 || partes[1].length() != 2 || partes[2].length() != 4) return false;
+		if (!matcher.find()) return false;
 		
 		return true;
 	}

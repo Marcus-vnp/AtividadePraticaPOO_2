@@ -247,32 +247,43 @@ public class TelaCadastro extends JFrame {
 				String buscarDataCadastro = textBuscarDataCadastro.getText().toString();
 				String buscarDataInicio = textPeriodoInicio.getText().toString();
 				String buscarDataFinal = textPeriodoFinal.getText().toString();
-				if (!buscarNome.isBlank()) {
-					ArrayList<Cliente> clientes = dao.buscarPorNome(buscarNome);
-
-					modelo.atualizarTabela(clientes);
-				}else if(!buscarDataCadastro.isBlank()) {
-					try {
-					ArrayList<Cliente> clientes = dao.buscarPorDataCadastro(buscarDataCadastro);
-					modelo.atualizarTabela(clientes);
-					}catch(IllegalArgumentException er){
-						JOptionPane.showMessageDialog(TelaCadastro.this, er.getMessage(), "Alerta", JOptionPane.WARNING_MESSAGE);
+				try {
+					String[] camposBuscar = {buscarNome, buscarDataCadastro, buscarDataInicio, buscarDataFinal};
+					int counter = 0;
+					
+					for(String campo : camposBuscar) {
+						if (!campo.isBlank()) counter++; 
 					}
-				}else if(!buscarDataInicio.isBlank() || !buscarDataFinal.isBlank()){
-					try {
-						ArrayList<Cliente> clientes = dao.buscarPorPeriodo(buscarDataInicio, buscarDataFinal);
+					
+					if (counter > 2) {
+						throw new IllegalArgumentException("Voce preencheu mais de um campo de busca, por favor escolha apenas um!");
+					}else if (counter == 2) {
+						if (buscarDataInicio.isBlank() || buscarDataFinal.isBlank()) throw new IllegalArgumentException("Voce preencheu mais de um campo de busca, por favor escolha apenas um!");
+					}
+					if (!buscarNome.isBlank()) {
+						ArrayList<Cliente> clientes = dao.buscarPorNome(buscarNome);
+
 						modelo.atualizarTabela(clientes);
-					}catch(IllegalArgumentException er){
-						JOptionPane.showMessageDialog(TelaCadastro.this, er.getMessage(), "Alerta", JOptionPane.WARNING_MESSAGE);
+					}else if(!buscarDataCadastro.isBlank()) {
+						ArrayList<Cliente> clientes = dao.buscarPorDataCadastro(buscarDataCadastro);
+	
+						modelo.atualizarTabela(clientes);
+					}else if(!buscarDataInicio.isBlank() || !buscarDataFinal.isBlank()){
+						ArrayList<Cliente> clientes = dao.buscarPorPeriodo(buscarDataInicio, buscarDataFinal);
+						
+						modelo.atualizarTabela(clientes);
+					}else {
+						try {
+							modelo.atualizarTabela(dao.listar());
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
 					}
 
-				}else {
-					try {
-						modelo.atualizarTabela(dao.listar());
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
+				}catch(IllegalArgumentException erro) {
+					JOptionPane.showMessageDialog(TelaCadastro.this, erro.getMessage(), "Alerta", JOptionPane.WARNING_MESSAGE);
 				}
+								
 			}
 		});
 		btnBuscar.setBounds(278, 25, 105, 27);

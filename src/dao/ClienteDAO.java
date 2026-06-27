@@ -144,7 +144,7 @@ public class ClienteDAO {
 		else if (!ConverterData.verificar(dataInicio)) throw new IllegalArgumentException("Data de Inicio esta com Formato Invalido!\nUtilize dd/MM/yyyy");
 		
 		if (dataFinal.trim().isEmpty()) throw new IllegalArgumentException("Data Final Nao Informada!");
-		else if(!ConverterData.verificar(dataFinal)) throw new IllegalArgumentException("Data de Inicio esta com Formato Invalido!\\nUtilize dd/MM/yyyy");
+		else if(!ConverterData.verificar(dataFinal)) throw new IllegalArgumentException("Data Final esta com Formato Invalido!\\nUtilize dd/MM/yyyy");
 		
 		if (!ConverterData.verificarAntecedencia(dataInicio, dataFinal)) throw new IllegalArgumentException("Data de Inicio nao pode ser maior que a Data Final!");
 		
