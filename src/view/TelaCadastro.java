@@ -84,9 +84,9 @@ public class TelaCadastro extends JFrame {
 	 * Create the frame.
 	 */
 	public TelaCadastro() {
-		dao = new ClienteDAO();
-		clientes = new ArrayList<Cliente>();
 		try {
+			dao = new ClienteDAO();
+			clientes = new ArrayList<Cliente>();
 			//DadosMockados.carregar(clientes);
 			modelo = new ClienteTableModel(dao.listar());
 		} catch (Exception e) {
@@ -471,13 +471,24 @@ public class TelaCadastro extends JFrame {
 			while((linha = bufferedReader.readLine()) != null) {
 				String campos [] = linha.split(",");
 				if (campos.length == 5) {
-					String nome = campos[0];
-					String telefone = campos[1];
-					String email = campos[2];
-					String sexo = campos[3];
-					String dataCadastro = campos[4];
-					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
-					modelo.addCliente(cliente);
+					
+					try {
+						String nome = campos[0];
+						String telefone = campos[1];
+						String email = campos[2];
+						String sexo = campos[3];
+						String dataCadastro = campos[4];
+						
+						Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
+						modelo.addCliente(cliente);
+						dao.inserir(cliente);
+					} catch (IllegalArgumentException e) {
+						contador++;
+					} catch (SQLException e){
+						//JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível inserir esse cliente no Banco de Dados.", "Erro", JOptionPane.ERROR_MESSAGE);
+						contador++;
+						e.printStackTrace();
+					}
 				} else {
 					contador++;
 				}
@@ -512,8 +523,8 @@ public class TelaCadastro extends JFrame {
 				String email = (String) modelo.getValueAt(i, 2);
 				String sexo = (String) modelo.getValueAt(i, 3);
 				String dataCadastro = (String) modelo.getValueAt(i, 4);
-				bufferedWriter.write(nome+","+telefone+","+
-				","+email+","+sexo+","+dataCadastro);
+				
+				bufferedWriter.write(nome+","+telefone+","+","+email+","+sexo+","+dataCadastro);
 				bufferedWriter.newLine();
 			}
 		}catch(IOException e) {
@@ -553,9 +564,9 @@ public class TelaCadastro extends JFrame {
 			
 			bufferedWriter.write("Total de clientes: " + dao.listar().size());
 			bufferedWriter.newLine();
-			bufferedWriter.write("Masculino: " + 0);
+			bufferedWriter.write("Masculino: " + dao.listarMasculino().size());
 			bufferedWriter.newLine();
-			bufferedWriter.write("Feminino: " + 0);
+			bufferedWriter.write("Feminino: " + dao.listarFeminino().size());
 			bufferedWriter.newLine();
 			bufferedWriter.newLine();
 			
@@ -611,6 +622,11 @@ public class TelaCadastro extends JFrame {
 			int aceitos = 0;
 			int rejeitados = 0;
 			
+			if(!arquivo.getPath().endsWith(".csv")) {
+				JOptionPane.showMessageDialog(TelaCadastro.this, "O arquivo está em formato inválido.", "Aviso", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			
 			if(arquivo.length() == 0 || linha == null) {
 				JOptionPane.showMessageDialog(TelaCadastro.this, "O arquivo selecionado está vazio.", "Aviso", JOptionPane.WARNING_MESSAGE);
 			}
@@ -618,19 +634,31 @@ public class TelaCadastro extends JFrame {
 			while((linha = bufferedReader.readLine()) != null) {
 				String campos [] = linha.split(",");
 				if (campos.length == 4) {
-					String nome = campos[0];
-					String telefone = campos[1];
-					String email = campos[2];
-					String sexo = campos[3];
-					LocalDate hoje = LocalDate.now();
-					DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-					String dataCadastro = hoje.format(formato);
 					
-					Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
-					dao.inserir(cliente);
-					modelo.addCliente(cliente);
+					try {
+						String nome = campos[0];
+						String telefone = campos[1];
+						String email = campos[2];
+						String sexo = campos[3];
+						LocalDate hoje = LocalDate.now();
+						DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+						String dataCadastro = hoje.format(formato);
 					
-					aceitos++;
+						Cliente cliente = new Cliente(nome, telefone, email, sexo, dataCadastro);
+						dao.inserir(cliente);
+						modelo.addCliente(cliente);
+					
+						aceitos++;
+					
+					}catch(IllegalArgumentException e) {
+						//JOptionPane.showMessageDialog(TelaCadastro.this, e.getMessage(), "Alerta", JOptionPane.WARNING_MESSAGE);
+						rejeitados++;
+						e.printStackTrace();
+					}catch (SQLException e){
+						//JOptionPane.showMessageDialog(TelaCadastro.this, "Não foi possível inserir esse cliente no Banco de Dados.", "Erro", JOptionPane.ERROR_MESSAGE);
+						rejeitados++;
+						e.printStackTrace();
+					}
 				} else {
 					rejeitados++;
 				}
@@ -639,11 +667,6 @@ public class TelaCadastro extends JFrame {
 			JOptionPane.showMessageDialog(TelaCadastro.this, "Registros importados: " + aceitos + "\nRegistros rejeitados: " + rejeitados, "Importação concluída", JOptionPane.INFORMATION_MESSAGE);
 		}catch(IOException e) {
 			JOptionPane.showMessageDialog(TelaCadastro.this, "Não encontrei esse arquivo", "Aviso", JOptionPane.WARNING_MESSAGE);
-			e.printStackTrace();
-		}catch(IllegalArgumentException e) {
-			e.printStackTrace();
-		}catch (SQLException e){
-			JOptionPane.showMessageDialog(TelaCadastro.this, "Erro no Banco de Dados ao inserir cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
 		}finally {
 			try {

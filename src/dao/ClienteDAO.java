@@ -62,10 +62,52 @@ public class ClienteDAO {
 		return clientes;
 	}
 	
+	public ArrayList<Cliente> listarFeminino() throws SQLException {
+		String sql = "SELECT * FROM clientes WHERE sexo = 'Feminino'";
+		ArrayList<Cliente> clientes = new ArrayList<Cliente>();
+		
+		Connection conexao = Conexao.conectar();
+		PreparedStatement stmt = conexao.prepareStatement(sql);
+		ResultSet resultSet = stmt.executeQuery();
+		while(resultSet.next()) {
+			String nome = resultSet.getString("nome");
+			String telefone = resultSet.getString("telefone");
+			String email = resultSet.getString("email");
+			String sexo = resultSet.getString("sexo");
+			String dataCadastro = ConverterData.retroceder(resultSet.getString("dataCadastro"));
+			int id = resultSet.getInt("id");
+			Cliente cliente = new Cliente(id, nome, telefone, email, sexo, dataCadastro);
+			clientes.add(cliente);
+		}
+		
+		return clientes;
+	}
+	
+	public ArrayList<Cliente> listarMasculino() throws SQLException {
+		String sql = "SELECT * FROM clientes WHERE sexo = 'Masculino'";
+		ArrayList<Cliente> clientes = new ArrayList<Cliente>();
+		
+		Connection conexao = Conexao.conectar();
+		PreparedStatement stmt = conexao.prepareStatement(sql);
+		ResultSet resultSet = stmt.executeQuery();
+		while(resultSet.next()) {
+			String nome = resultSet.getString("nome");
+			String telefone = resultSet.getString("telefone");
+			String email = resultSet.getString("email");
+			String sexo = resultSet.getString("sexo");
+			String dataCadastro = ConverterData.retroceder(resultSet.getString("dataCadastro"));
+			int id = resultSet.getInt("id");
+			Cliente cliente = new Cliente(id, nome, telefone, email, sexo, dataCadastro);
+			clientes.add(cliente);
+		}
+		
+		return clientes;
+	}
+	
 	public void atualizar(Cliente cliente) throws SQLException {
 		String sql = "UPDATE clientes SET nome=?, "
 				+ "telefone=?, email=?, sexo=?, dataCadastro=? WHERE id=?";
-		try {
+		
 			Connection conexao = Conexao.conectar();
 			PreparedStatement stmt = conexao.prepareStatement(sql);
 			stmt.setString(1, cliente.getNome());
@@ -77,9 +119,6 @@ public class ClienteDAO {
 			stmt.executeUpdate();
 			stmt.close();
 			conexao.close();
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public ArrayList<Cliente> buscarPorNome(String nome){

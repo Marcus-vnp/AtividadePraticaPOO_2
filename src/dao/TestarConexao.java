@@ -1,22 +1,21 @@
 package dao;
 
 import java.sql.Connection;
-import java.util.ArrayList;
+import java.sql.SQLException;
 
-import model.Cliente;
 import util.ConverterData;
 
 public class TestarConexao {
 
 	public static void main(String[] args) {
 		
-		ClienteDAO cliente = new ClienteDAO();
-		Connection conexao = Conexao.conectar();
-		
-		if (conexao != null) {
+		try {
+			ClienteDAO cliente = new ClienteDAO();
+			Connection conexao = Conexao.conectar();
 			System.out.println("Conectado com sucesso!");
-		}else {
+		} catch (SQLException e) {
 			System.out.println("Erro ao se conectar ao banco");
+			e.printStackTrace();
 		}
 		
 		try{
